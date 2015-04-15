@@ -1,0 +1,13 @@
+*poi.txt* Point of Interest highlighter
+
+Author:  Dan Bradbury <http://www.danbradbury.net>
+Repo:    https://github.com/DanBradbury/vim-poi
+Licence: Same terms as vim itself (see |license|)
+
+INTRODUCTION                                        *poi*
+
+Highlight line(s) to standout when editting.
+
+COMMANDS                                            *poi-commands*
+
+
