@@ -1,9 +1,10 @@
 " Highlight points of intereset
 let g:match_base=':match poi '
 let g:lines=[]
+au! VimEnter * execute(":autocmd InsertLeave * call <SID>MakeMatch()")
+highlight poi ctermbg=darkred guibg='#004f27' guifg='#ffcc00'
 
-function! MakeMatch()
-  highlight poi ctermbg=darkred guibg='#004f27' guifg='#ffcc00'
+function! s:MakeMatch()
   let g:build_string=g:match_base
   let c=0
   for i in g:lines
@@ -19,11 +20,15 @@ function! MakeMatch()
       let g:build_string=g:build_string.'\|'
     endif
   endfor
-  execute g:build_string
+  if c==0
+    let g:build_string=g:build_string.'//'
+  endif
+  if hlexists("poi")==1
+    execute g:build_string
+  endif
 endfunction
 
-function! AddLine(...)
-  highlight poi ctermbg=darkred guibg='#004f27' guifg='#ffcc00'
+function! s:AddLine(...)
   if a:1==0
     let g:line_num = line('.')
   else
@@ -47,18 +52,18 @@ function! AddLine(...)
       call remove(g:lines, dup_ind)
     endif
   endif
-  call MakeMatch()
+  call s:MakeMatch()
 endfunction
 
-function! AddRange() range
+function! s:AddRange() range
   let start=a:firstline
   let end=a:lastline
   while start<=end
-    call AddLine(eval(start))
+    call s:AddLine(eval(start))
     let start+=1
   endwhile
 endfunction
 
-vmap <Leader>h :call AddRange()<CR>
-nmap <Leader>h :call AddLine(line('.'))<CR>
+vmap <Leader>h :call <SID>AddRange()<CR>
+nmap <Leader>h :call <SID>AddLine(line('.'))<CR>
 
