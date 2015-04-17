@@ -1,42 +1,48 @@
 " Highlight points of intereset
-let g:match_base = ':match poi '
-let g:lines = []
+let s:match_base = ':match poi '
 au! VimEnter * execute(":autocmd InsertLeave * call <SID>MakeMatch()")
+au! BufEnter * call <SID>MakeBuff()
 highlight poi ctermbg=darkred guibg='#004f27' guifg='#ffcc00'
 
+function! s:MakeBuff()
+  if !exists('b:lines')
+    let b:lines = []
+  endif
+endfunction
+
 function! s:MakeMatch()
-  let g:build_string = g:match_base
+  let s:build_string = s:match_base
   let c = 0
-  for i in g:lines
+  for i in b:lines
     let c += 1
     if c == 1
-      let g:build_string = g:build_string.'/\%'.string(i).'l'
+      let s:build_string = s:build_string.'/\%'.string(i).'l'
     else
-      let g:build_string = g:build_string.'\%'.string(i).'l'
+      let s:build_string = s:build_string.'\%'.string(i).'l'
     endif
-    if c == len(g:lines)
-      let g:build_string = g:build_string.'/'
+    if c == len(b:lines)
+      let s:build_string = s:build_string.'/'
     else
-      let g:build_string = g:build_string.'\|'
+      let s:build_string = s:build_string.'\|'
     endif
   endfor
   if c == 0
-    let g:build_string = g:build_string.'//'
+    let s:build_string = s:build_string.'//'
   endif
-  execute g:build_string
+  execute s:build_string
 endfunction
 
 function! s:AddLine(...)
   if a:1 == 0
-    let g:line_num = line('.')
+    let s:line_num = line('.')
   else
-    let g:line_num = a:1
+    let s:line_num = a:1
   endif
   let add = 1
   let dup_ind = 99
   let c = 0
-  for i in g:lines
-    if g:line_num == i
+  for i in b:lines
+    if s:line_num == i
       let add = 0
       let dup_ind = c
     endif
@@ -44,10 +50,10 @@ function! s:AddLine(...)
   endfor
 
   if add == 1
-    let g:lines += [g:line_num]
+    let b:lines += [s:line_num]
   else
     if dup_ind != 99
-      call remove(g:lines, dup_ind)
+      call remove(b:lines, dup_ind)
     endif
   endif
   call s:MakeMatch()
@@ -63,7 +69,7 @@ function! s:AddRange(start, end)
 endfunction
 
 function! s:ClearPoi()
-  let g:lines = []
+  let b:lines = []
   call s:MakeMatch()
 endfunction
 
