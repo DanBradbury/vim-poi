@@ -13,5 +13,6 @@ then run the following commands.
 ## Usage
 Here is an example of how to get set up with `vim-poi`. You can use your own custom mappings.
 
-    vnoremap <leader>h :call AddRange()<cr>
-    nnoremap <leader>h :call AddLine(line('.'))<cr>
+    vnoremap <Leader>h :PoiLines<CR>
+    nnoremap <Leader>h :PoiLine<CR>
+    

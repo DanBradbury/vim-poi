@@ -23,9 +23,7 @@ function! s:MakeMatch()
   if c == 0
     let g:build_string = g:build_string.'//'
   endif
-  if hlexists("poi") == 1
-    execute g:build_string
-  endif
+  execute g:build_string
 endfunction
 
 function! s:AddLine(...)
@@ -55,14 +53,15 @@ function! s:AddLine(...)
   call s:MakeMatch()
 endfunction
 
-function! s:AddRange() range
-  let start = a:firstline
-  let end = a:lastline
+function! s:AddRange(start, end)
+  let start = a:start
+  let end = a:end
   while start <= end
     call s:AddLine(eval(start))
     let start += 1
   endwhile
 endfunction
 
-vmap <Leader>h :call <SID>AddRange()<CR>
-nmap <Leader>h :call <SID>AddLine(line('.'))<CR>
+com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
+com! -nargs=0 PoiLine :call <SID>AddLine(line('.'))
+
