@@ -62,6 +62,12 @@ function! s:AddRange(start, end)
   endwhile
 endfunction
 
+function! s:ClearPoi()
+  let g:lines = []
+  call s:MakeMatch()
+endfunction
+
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiLine :call <SID>AddLine(line('.'))
+com! -nargs=0 PoiClear :call <SID>ClearPoi()
 

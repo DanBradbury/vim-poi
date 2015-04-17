@@ -13,6 +13,7 @@ then run the following commands.
 ## Usage
 Here is an example of how to get set up with `vim-poi`. You can use your own custom mappings.
 
-    vnoremap <Leader>h :PoiLines<CR>
-    nnoremap <Leader>h :PoiLine<CR>
-    
+    vnoremap <Leader>h  :PoiLines<CR>
+    nnoremap <Leader>h  :PoiLine<CR>
+    nnoremap <Leader>hc :PoiClear<CR>
+
