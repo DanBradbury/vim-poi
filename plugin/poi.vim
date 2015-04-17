@@ -4,6 +4,22 @@ au! VimEnter * execute(":autocmd InsertLeave * call <SID>MakeMatch()")
 au! BufEnter * call <SID>MakeBuff()
 highlight poi ctermbg=darkred guibg='#004f27' guifg='#ffcc00'
 
+let s:bg = 'red'
+let s:fg = 'white'
+
+if exists('g:poi_highlight_colors')
+  if len(g:poi_highlight_colors) == 2
+    let s:bg = g:poi_highlight_colors[0]
+    let s:fg = g:poi_highlight_colors[1]
+  elseif len(g:poi_highlight_colors) == 1
+    let s:bg = g:poi_highlight_colors[0]
+  else
+    echo "You've provdided an invalid g:poi_higlight_colors"
+  endif
+endif
+
+execute 'highlight poi ctermbg='.s:bg.' ctermfg='.s:fg
+
 function! s:MakeBuff()
   if !exists('b:lines')
     let b:lines = []
