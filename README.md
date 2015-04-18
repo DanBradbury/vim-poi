@@ -1,6 +1,6 @@
 # poi.vim
 
-vim-poi allows users to highlight lines through visual mode. Even when the user adds new code and exits from Insert mode
+vim-poi, points of interest, allows users to highlight lines through visual mode. Even when the user adds new code and exits from Insert mode
 the highlights you previously created will be rerendered onto the page.
 
 ## Installation
@@ -17,3 +17,5 @@ Here is an example of how to get set up with `vim-poi`. You can use your own cus
     nnoremap <Leader>h  :PoiLine<CR>
     nnoremap <Leader>hc :PoiClear<CR>
 
+You can also customize the background and foreground colors by adding the following line to your `.vimrc` file.
+    let g:poi_highlight_colors = ["my_custom_color_1", "my_custom_color_2"]

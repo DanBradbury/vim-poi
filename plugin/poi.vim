@@ -14,7 +14,7 @@ if exists('g:poi_highlight_colors')
   elseif len(g:poi_highlight_colors) == 1
     let s:bg = g:poi_highlight_colors[0]
   else
-    echo "You've provdided an invalid g:poi_higlight_colors"
+    echo "You've provided an invalid g:poi_higlight_colors"
   endif
 endif
 
