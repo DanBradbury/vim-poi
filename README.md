@@ -16,6 +16,6 @@ Here is an example of how to get set up with `vim-poi`. You can use your own cus
     vnoremap <Leader>h  :PoiLines<CR>
     nnoremap <Leader>h  :PoiLine<CR>
     nnoremap <Leader>hc :PoiClear<CR>
+    " Use custom colors (gui*_colors are not required)
+    let g:poi_colors = [ 'ctermbg_color', 'ctermfg_color', 'guibg_color', 'guifg_color' ]
 
-You can also customize the background and foreground colors by adding the following line to your `.vimrc` file.
-    let g:poi_highlight_colors = ["my_custom_color_1", "my_custom_color_2"]

@@ -1,24 +1,34 @@
 " Highlight points of intereset
 let s:match_base = ':match poi '
-au! VimEnter * execute(":autocmd InsertLeave * call <SID>MakeMatch()")
+au! VimEnter * execute ":autocmd InsertLeave * call <SID>MakeMatch()"
+au! ColorScheme * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
 au! BufEnter * call <SID>MakeBuff()
-highlight poi ctermbg=darkred guibg='#004f27' guifg='#ffcc00'
+au! CursorHold * call <SID>MakeMatch()
+au! CursorMoved * call <SID>MakeMatch()
+au! CursorMovedI * call <SID>MakeMatch()
 
-let s:bg = 'red'
-let s:fg = 'white'
+let s:c_bg = 'red'
+let s:c_fg = 'white'
+let s:g_bg = '#fce122'
+let s:g_fg = '#18453b'
 
-if exists('g:poi_highlight_colors')
-  if len(g:poi_highlight_colors) == 2
-    let s:bg = g:poi_highlight_colors[0]
-    let s:fg = g:poi_highlight_colors[1]
-  elseif len(g:poi_highlight_colors) == 1
-    let s:bg = g:poi_highlight_colors[0]
+if exists('g:poi_colors')
+  if len(g:poi_colors) == 2
+    let s:c_bg = g:poi_colors[0]
+    let s:c_fg = g:poi_colors[1]
+  elseif len(g:poi_colors) == 1
+    let s:c_bg = g:poi_colors[0]
+  elseif len(g:poi_colors) == 4
+    let s:c_bg = g:poi_colors[0]
+    let s:c_fg = g:poi_colors[1]
+    let s:g_bg = g:poi_colors[2]
+    let s:g_fg = g:poi_colors[3]
   else
     echo "You've provided an invalid g:poi_higlight_colors"
   endif
 endif
 
-execute 'highlight poi ctermbg='.s:bg.' ctermfg='.s:fg
+execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
 
 function! s:MakeBuff()
   if !exists('b:lines')
@@ -27,25 +37,27 @@ function! s:MakeBuff()
 endfunction
 
 function! s:MakeMatch()
-  let s:build_string = s:match_base
-  let c = 0
-  for i in b:lines
-    let c += 1
-    if c == 1
-      let s:build_string = s:build_string.'/\%'.string(i).'l'
-    else
-      let s:build_string = s:build_string.'\%'.string(i).'l'
+  if exists('b:lines')
+    let s:build_string = s:match_base
+    let c = 0
+    for i in b:lines
+      let c += 1
+      if c == 1
+        let s:build_string = s:build_string.'/\%'.string(i).'l'
+      else
+        let s:build_string = s:build_string.'\%'.string(i).'l'
+      endif
+      if c == len(b:lines)
+        let s:build_string = s:build_string.'/'
+      else
+        let s:build_string = s:build_string.'\|'
+      endif
+    endfor
+    if c == 0
+      let s:build_string = s:build_string.'//'
     endif
-    if c == len(b:lines)
-      let s:build_string = s:build_string.'/'
-    else
-      let s:build_string = s:build_string.'\|'
-    endif
-  endfor
-  if c == 0
-    let s:build_string = s:build_string.'//'
+    execute s:build_string
   endif
-  execute s:build_string
 endfunction
 
 function! s:AddLine(...)
