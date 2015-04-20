@@ -2,6 +2,8 @@
 let s:match_base = ':match poi '
 au! VimEnter * execute ":autocmd InsertLeave * call <SID>MakeMatch()"
 au! ColorScheme * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
+au! BufEnter * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
+au! BufWinEnter * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
 au! BufEnter * call <SID>MakeBuff()
 au! CursorHold * call <SID>MakeMatch()
 au! CursorMoved * call <SID>MakeMatch()
