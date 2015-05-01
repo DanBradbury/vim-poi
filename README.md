@@ -1,7 +1,8 @@
 # vim-poi
 
-vim-poi, points of interest, allows users to highlight lines through visual mode. Even when the user adds new code and exits from Insert mode
-the highlights you previously created will be rerendered onto the page.
+vim-poi, points of interest, allows you to highlight lines when in visual mode.
+
+![](http://i.imgur.com/kqbHMjA.gif)
 
 ## Installation
 
