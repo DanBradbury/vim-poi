@@ -7,6 +7,13 @@ au! CursorHold * call <SID>MakeMatch()
 au! CursorMoved * call <SID>MakeMatch()
 au! CursorMovedI * call <SID>MakeMatch()
 
+"let b:original = []
+let g:changes = []
+
+"au! InsertEnter * call <SID>SaveOriginal()
+"au! InsertLeave * call <SID>SaveChanges()
+au! CursorMoved * call <SID>CheckContents()
+
 let s:c_bg = 'red'
 let s:c_fg = 'white'
 let s:g_bg = '#fce122'
@@ -30,9 +37,90 @@ endif
 
 execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
 
+function! s:CheckContents()
+  if exists('b:original')
+    let cur_buf = getline(1,'$')
+    if cur_buf==b:original
+      echo "nothing has changed"
+    else
+      echo "something has changed?"
+      let num = 0
+      let mismatched_line = 0
+      if len(cur_buf) > len(b:original)
+        for line in b:original
+          if line != cur_buf[num]
+            if mismatched_line == 0
+              let mismatched_line = num+1
+            endif
+          endif
+          let num += 1
+        endfor
+      endif
+      "echo mismatched_line
+      echo b:original[mismatched_line-2]
+    endif
+  endif
+endfunction
+
+function! s:SaveOriginal()
+  let g:original = getline(1, '$')
+endfunction
+
+function! s:SaveChanges()
+  let g:changes = getline(1, '$')
+  let g:no_matches = -1
+  let first_not_found = -1
+  let line_num = 0
+  let change_diff = len(g:changes)-len(g:original)
+  "if changes lines > original lines
+  " check to see where the additional lines are
+  for line in g:original
+    echo line
+    "if line != g:changes[line_num]
+      ""let first_not_found = 1
+      ""necessary to increment by 1 for the actual line number
+      "let g:no_matches = line_num + 1
+    "endif
+    "let line_num = line_num + 1
+  endfor
+  " check against highlighted lines stored for the current buffer
+  " update as needed
+  "elsif changes < original
+  " find where lines have been removed
+  " update highlighted lines accordings
+  " ( we are storing the the 'orinal' buffers highlight locations )
+  " update as needed
+
+  "get difference
+  "for line in g:original
+    "if line == g:changes[line_num]
+      ""echo g:changes[line_num]
+      ""echo 'exact match found'
+      "let exact_match = 1
+    "else
+      "let exact_match = -1
+    "endif
+
+    "let line_num += 1
+    "let found_index = index(g:changes, line)
+    ""not found
+    "if found_index == -1 && first_not_found == -1 && exact_match == -1
+      "let first_not_found = line_num
+    "endif
+
+    "if first_not_found == -1 && exact_match == -1
+      "let first_not_found = line_num
+    "endif
+  "endfor
+  "echo first_not_found
+endfunction
+
 function! s:MakeBuff()
   if !exists('b:lines')
     let b:lines = []
+  endif
+  if !exists('b:original')
+    let b:original = getline(1, '$')
   endif
 endfunction
 
