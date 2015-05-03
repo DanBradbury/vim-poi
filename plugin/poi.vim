@@ -107,6 +107,26 @@ function! s:AddRange(start, end)
   endwhile
 endfunction
 
+function! s:AddToList(line, bufnum, content)
+  call add(g:pois, {'line':a:line, 'bufnum':a:bufnum, 'content':a:content})
+endfunction
+
+function! s:ClearPoi()
+  call s:CleanQuickfix(bufnr(''))
+  let b:lines = []
+  call s:MakeMatch()
+endfunction
+
+function! s:CleanQuickfix(bufnum)
+  let new = []
+  for i in g:pois 
+    if i['bufnum'] != a:bufnum
+      call add(new, i)
+    endif
+  endfor
+  let g:pois = new
+endfunction
+
 function! s:CreateQuickfix()
   call setqflist([])
   for i in g:pois
@@ -115,14 +135,6 @@ function! s:CreateQuickfix()
   copen
 endfunction
 
-function! s:AddToList(line, bufnum, content)
-  call add(g:pois, {'line':a:line, 'bufnum':a:bufnum, 'content':a:content})
-endfunction
-
-function! s:ClearPoi()
-  let b:lines = []
-  call s:MakeMatch()
-endfunction
 
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))

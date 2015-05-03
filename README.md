@@ -15,27 +15,16 @@ cd ~/.vim/bundle
 git clone https://github.com/DanBradbury/vim-poi.git
 ```
 
-### Vundle
-If you're using [vundle](https://github.com/gmarik/Vundle.vim.git) add the following line to your `.vimrc` file.
-```vim
-Plugin 'DanBradbury/vim-poi'
-```
-
-and then run...
-
-```vim
-:PluginInstall
-```
-
-to install it.
-
 ## Usage
-Here is an example of how to get set up with `vim-poi` with your `.vimrc` file. You can use your own custom mappings.
+Add the following to your .vimrc to get started
 
 ```vim
+"Highlight line(s)
 vnoremap <Leader>h  :PoiLines<CR>
 nnoremap <Leader>h  :PoiLine<CR>
+"Remove all highlights from current buffer
 nnoremap <Leader>hc :PoiClear<CR>
+"Open a quickfix menu to preview all highlights across all buffers
 nnoremap <Leader>hp :PoiPreview<CR>
 
 " Use custom colors (gui*_colors are not required)
