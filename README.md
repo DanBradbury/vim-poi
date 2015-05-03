@@ -36,6 +36,7 @@ Here is an example of how to get set up with `vim-poi` with your `.vimrc` file. 
 vnoremap <Leader>h  :PoiLines<CR>
 nnoremap <Leader>h  :PoiLine<CR>
 nnoremap <Leader>hc :PoiClear<CR>
+nnoremap <Leader>hp :PoiPreview<CR>
 
 " Use custom colors (gui*_colors are not required)
 let g:poi_colors = [ 'ctermbg_color', 'ctermfg_color', 'guibg_color', 'guifg_color' ]

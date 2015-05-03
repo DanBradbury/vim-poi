@@ -14,6 +14,9 @@ let s:c_fg = 'white'
 let s:g_bg = '#fce122'
 let s:g_fg = '#18453b'
 
+" {'line':num, 'bufnum':num, 'content':text}
+let g:pois = []
+
 if exists('g:poi_colors')
   if len(g:poi_colors) == 2
     let s:c_bg = g:poi_colors[0]
@@ -89,13 +92,31 @@ function! s:AddLine(...)
   call s:MakeMatch()
 endfunction
 
+function! s:AddSingleLine(num)
+  call s:AddToList(a:num, bufnr(''), getline(a:num))
+  call s:AddLine(a:num)
+endfunction
+
 function! s:AddRange(start, end)
   let start = a:start
   let end = a:end
+  call s:AddToList(start, bufnr(''), getline(start))
   while start <= end
     call s:AddLine(eval(start))
     let start += 1
   endwhile
+endfunction
+
+function! s:CreateQuickfix()
+  call setqflist([])
+  for i in g:pois
+    call setqflist([{'bufnr': i['bufnum'], 'lnum': i['line'], 'text': i['content']}], 'a')
+  endfor
+  copen
+endfunction
+
+function! s:AddToList(line, bufnum, content)
+  call add(g:pois, {'line':a:line, 'bufnum':a:bufnum, 'content':a:content})
 endfunction
 
 function! s:ClearPoi()
@@ -104,6 +125,7 @@ function! s:ClearPoi()
 endfunction
 
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
-com! -nargs=0 PoiLine :call <SID>AddLine(line('.'))
+com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
+com! -nargs=0 PoiPreview :call <SID>CreateQuickfix()
 
