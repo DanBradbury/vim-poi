@@ -142,9 +142,14 @@ endfunction
 
 function! s:CreateQuickfix()
   call setqflist([])
-  for i in g:pois
-    call setqflist([{'bufnr': i['bufnum'], 'lnum': i['line'], 'text': i['content']}], 'a')
-  endfor
+  if len(g:pois) == 0
+    call setqflist([{'text':"NOTHING TO SEE HERE..NO POINTS OF INTEREST HAVE BEEN HIGHLIGHTED!"}])
+  else
+    call setqflist([{'text':"CREATED POINTS OF INTEREST"}], 'a')
+    for i in g:pois
+      call setqflist([{'bufnr': i['bufnum'], 'lnum': i['line'], 'text': i['content']}], 'a')
+    endfor
+  endif
   copen
 endfunction
 
