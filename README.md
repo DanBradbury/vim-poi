@@ -35,13 +35,20 @@ let g:poi_colors = [ 'ctermbg_color', 'ctermfg_color', 'guibg_color', 'guifg_col
 ## Available Commands
 #### :PoiLine
 > Highlight individual line when in normal mode
+
 ![](http://i.imgur.com/7gU1bG5.gif)
+
 #### :PoiLines
 > Highlight visual selection
+
 ![](http://i.imgur.com/xruRsJD.gif)
+
 #### :PoiClear
 > Clear the current highlights in the current buffer
+
 ![](http://i.imgur.com/9nD3J9v.gif)
+
 #### :PoiPreview
 > Open a quickfix window with all the highlights made in the current session
+
 ![](http://i.imgur.com/KWygHsl.gif)
