@@ -108,7 +108,20 @@ function! s:AddRange(start, end)
 endfunction
 
 function! s:AddToList(line, bufnum, content)
-  call add(g:pois, {'line':a:line, 'bufnum':a:bufnum, 'content':a:content})
+  let dup_found = 0
+  let pois_copy = []
+  "check if the element already exists
+  for l in g:pois
+    if l['line'] == a:line && l['bufnum'] == a:bufnum
+      let dup_found = 1
+    else
+      call add(pois_copy, l)
+    endif
+  endfor
+  if dup_found == 0
+    call add(pois_copy, {'line':a:line, 'bufnum':a:bufnum, 'content':a:content})
+  endif
+  let g:pois = pois_copy
 endfunction
 
 function! s:ClearPoi()
