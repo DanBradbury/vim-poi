@@ -1,4 +1,4 @@
-" Highlight points of intereset
+" Highlight points of interest
 let s:match_base = ':match poi '
 au! VimEnter * execute ":autocmd InsertLeave * call <SID>MakeMatch()"
 au! ColorScheme * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
@@ -9,12 +9,13 @@ au! CursorHold * call <SID>MakeMatch()
 au! CursorMoved * call <SID>MakeMatch()
 au! CursorMovedI * call <SID>MakeMatch()
 
+
 let s:c_bg = 'red'
 let s:c_fg = 'white'
 let s:g_bg = '#fce122'
 let s:g_fg = '#18453b'
 
-" {'line':num, 'bufnum':num, 'content':text}
+" { 'line': num, 'bufnum': num, 'content': text }
 let g:pois = []
 
 if exists('g:poi_colors')
@@ -29,7 +30,7 @@ if exists('g:poi_colors')
     let s:g_bg = g:poi_colors[2]
     let s:g_fg = g:poi_colors[3]
   else
-    echo "You've provided an invalid g:poi_higlight_colors"
+    echo "You've provided an invalid g:poi_highlight_colors"
   endif
 endif
 
@@ -58,6 +59,7 @@ function! s:MakeMatch()
         let s:build_string = s:build_string.'\|'
       endif
     endfor
+
     if c == 0
       let s:build_string = s:build_string.'//'
     endif
@@ -71,9 +73,11 @@ function! s:AddLine(...)
   else
     let s:line_num = a:1
   endif
+
   let add = 1
   let dup_ind = 99
   let c = 0
+
   for i in b:lines
     if s:line_num == i
       let add = 0
@@ -101,6 +105,7 @@ function! s:AddRange(start, end)
   let start = a:start
   let end = a:end
   call s:AddToList(start, bufnr(''), getline(start))
+
   while start <= end
     call s:AddLine(eval(start))
     let start += 1
@@ -110,6 +115,7 @@ endfunction
 function! s:AddToList(line, bufnum, content)
   let dup_found = 0
   let pois_copy = []
+
   "check if the element already exists
   for l in g:pois
     if l['line'] == a:line && l['bufnum'] == a:bufnum
@@ -118,6 +124,7 @@ function! s:AddToList(line, bufnum, content)
       call add(pois_copy, l)
     endif
   endfor
+
   if dup_found == 0
     call add(pois_copy, {'line':a:line, 'bufnum':a:bufnum, 'content':a:content})
   endif
@@ -142,6 +149,7 @@ endfunction
 
 function! s:CreateQuickfix()
   call setqflist([])
+
   if len(g:pois) == 0
     call setqflist([{'text':"NOTHING TO SEE HERE..NO POINTS OF INTEREST HAVE BEEN HIGHLIGHTED!"}])
   else
@@ -158,4 +166,3 @@ com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
 com! -nargs=0 PoiPreview :call <SID>CreateQuickfix()
-
