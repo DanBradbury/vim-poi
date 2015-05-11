@@ -9,5 +9,3 @@ INTRODUCTION                                        *poi*
 Highlight line(s) to standout when editting.
 
 COMMANDS                                            *poi-commands*
-
-

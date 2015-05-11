@@ -126,7 +126,7 @@ function! s:AddToList(line, bufnum, content)
   endfor
 
   if dup_found == 0
-    call add(pois_copy, {'line':a:line, 'bufnum':a:bufnum, 'content':a:content})
+    call add(pois_copy, { 'line': a:line, 'bufnum': a:bufnum, 'content': a:content })
   endif
   let g:pois = pois_copy
 endfunction
@@ -151,13 +151,31 @@ function! s:CreateQuickfix()
   call setqflist([])
 
   if len(g:pois) == 0
-    call setqflist([{'text':"NOTHING TO SEE HERE..NO POINTS OF INTEREST HAVE BEEN HIGHLIGHTED!"}])
+    call setqflist([{ 'text': "NOTHING TO SEE HERE..NO POINTS OF INTEREST HAVE BEEN HIGHLIGHTED!" }])
   else
-    call setqflist([{'text':"CREATED POINTS OF INTEREST"}], 'a')
+    call setqflist([{ 'text': "CREATED POINTS OF INTEREST" }], 'a')
     for i in g:pois
-      call setqflist([{'bufnr': i['bufnum'], 'lnum': i['line'], 'text': i['content']}], 'a')
+      call setqflist([{ 'bufnr': i['bufnum'], 'lnum': i['line'], 'text': i['content'] }], 'a')
     endfor
   endif
+  copen
+endfunction
+
+function! s:PoiHelpQuickFix()
+  let help_commands = []
+  let s:readme = globpath(&runtimepath, '*/vim-poi/README.md')
+  let s:file_name = split(s:readme, "/")[-1]
+
+  for line in readfile(s:readme, '', 33)
+    if line =~ 'nnoremap' || line =~ 'vnoremap'
+      call add(help_commands, { 'file_name': s:file_name, 'command': line })
+    endif
+  endfor
+
+  call setqflist([])
+  for i in help_commands
+    call setqflist([{ 'filename': i['file_name'], 'text': i['command'] }], 'a')
+  endfor
   copen
 endfunction
 
@@ -166,3 +184,4 @@ com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
 com! -nargs=0 PoiPreview :call <SID>CreateQuickfix()
+com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
