@@ -48,9 +48,9 @@ function! s:MakeMatch()
     for i in b:lines
       let c += 1
       if c == 1
-        let s:build_string = s:build_string.'/\%'.string(i).'l'
+        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
       else
-        let s:build_string = s:build_string.'\%'.string(i).'l'
+        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
       endif
       if c == len(b:lines)
         let s:build_string = s:build_string.'/'
@@ -75,7 +75,7 @@ function! s:AddLine(...)
   let dup_ind = 99
   let c = 0
   for i in b:lines
-    if s:line_num == i
+    if s:line_num == i["line_num"]
       let add = 0
       let dup_ind = c
     endif
@@ -83,13 +83,19 @@ function! s:AddLine(...)
   endfor
 
   if add == 1
-    let b:lines += [s:line_num]
+    let line_content = escape(getline(s:line_num), '\/[]')
+    let safe_string = substitute(line_content, '^\ *', '\1', '')
+    call add(b:lines, {"line_num":s:line_num, "content":safe_string})
   else
     if dup_ind != 99
       call remove(b:lines, dup_ind)
     endif
   endif
   call s:MakeMatch()
+endfunction
+
+function! s:AddSelection(num, text)
+  call s:AddToList(a:num, bufnr(''), a:text)
 endfunction
 
 function! s:AddSingleLine(num)
@@ -132,7 +138,7 @@ endfunction
 
 function! s:CleanQuickfix(bufnum)
   let new = []
-  for i in g:pois 
+  for i in g:pois
     if i['bufnum'] != a:bufnum
       call add(new, i)
     endif
@@ -153,9 +159,17 @@ function! s:CreateQuickfix()
   copen
 endfunction
 
+function! s:EchoWord(current_line)
+  let g:bs = @-
+  "call modified addline (with content, line_num)
+  "addLine(g:bs,a:current_line)
+  norm gv
+endfunction
 
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
 com! -nargs=0 PoiPreview :call <SID>CreateQuickfix()
+vnoremap <Leader>hs "-y :PoiWord<CR>
+com! -nargs=0 PoiWord :call <SID>EchoWord(line('.'))
 
