@@ -1,8 +1,10 @@
 # vim-poi
 
-vim-poi, points of interest, makes it easy to highlight important lines/sections of code. The highlights persist throughout the session and can be accessed & reviewed anywhere with the `:PoiPreview` view. More information on specific commands can be found at the bottom of this file.
+vim-poi, points of interest, makes it easy to highlight important lines/sections of code. The highlights persist throughout the session and can be reviewed in the `:PoiPreview` quickfix window.
 
 ![](http://i.imgur.com/iDCpsc5.png)
+
+*High contrast colors have been selected for optimal viewing experience across versions.*
 
 ## Installation
 
@@ -17,7 +19,7 @@ git clone https://github.com/DanBradbury/vim-poi.git
 ```
 
 ## Usage
-Add the following to your .vimrc to get started
+Add the following to your .vimrc to get started (all commands have an associated gif)
 
 ```vim
 " Highlight line(s)
@@ -25,12 +27,11 @@ vnoremap <Leader>h  :PoiLines<CR>
 nnoremap <Leader>h  :PoiLine<CR>
 " Remove all highlights from current buffer
 nnoremap <Leader>hc :PoiClear<CR>
+" Change highlight color
+nnoremap <Leader>hh :PoiChange <CR>
 " Open a quickfix menu to preview all highlights across all buffers
 nnoremap <Leader>hp :PoiPreview<CR>
 nnoremap <Leader>ph :PoiHelp<CR>
-
-" Use custom colors (gui*_colors are not required)
-let g:poi_colors = [ 'ctermbg_color', 'ctermfg_color', 'guibg_color', 'guifg_color' ]
 ```
 
 ## Available Commands
