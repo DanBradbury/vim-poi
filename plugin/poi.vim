@@ -1,17 +1,33 @@
 " Highlight points of interest
 let s:match_base = ':match poi '
 au! VimEnter * execute ":autocmd InsertLeave * call <SID>MakeMatch()"
-au! ColorScheme * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
-au! BufEnter * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
-au! BufWinEnter * execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
+" ALL HIGHLIGHTING RELATED CODE
+" will need to be ripped out to support different presets
+au! ColorScheme * call <SID>ExecuteHighlight()
+au! BufEnter * call <SID>ExecuteHighlight()
+au! BufWinEnter * call <SID>ExecuteHighlight()
+
 au! BufEnter * call <SID>MakeBuff()
 au! CursorHold * call <SID>MakeMatch()
 au! CursorMoved * call <SID>MakeMatch()
 au! CursorMovedI * call <SID>MakeMatch()
 
 
-let s:c_bg = 'red'
-let s:c_fg = 'white'
+"for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
+let g:contrast_poi = [ ['white', 'black'], [226,129], [214,20], [196,227] ]
+let g:current_poi = 0
+let g:c_bg = 'white'
+let g:c_fg = 'black'
+" yellow/purple
+"let g:c_bg = 226
+"let g:c_fg = 129
+" organe/lightblue
+"let g:c_bg = 214
+"let g:c_fg = 20
+" red / lightyellow
+"let g:c_bg = 196
+"let g:c_fg = 227
+
 let s:g_bg = '#fce122'
 let s:g_fg = '#18453b'
 
@@ -20,13 +36,13 @@ let g:pois = []
 
 if exists('g:poi_colors')
   if len(g:poi_colors) == 2
-    let s:c_bg = g:poi_colors[0]
-    let s:c_fg = g:poi_colors[1]
+    let g:c_bg = g:poi_colors[0]
+    let g:c_fg = g:poi_colors[1]
   elseif len(g:poi_colors) == 1
-    let s:c_bg = g:poi_colors[0]
+    let g:c_bg = g:poi_colors[0]
   elseif len(g:poi_colors) == 4
-    let s:c_bg = g:poi_colors[0]
-    let s:c_fg = g:poi_colors[1]
+    let g:c_bg = g:poi_colors[0]
+    let g:c_fg = g:poi_colors[1]
     let s:g_bg = g:poi_colors[2]
     let s:g_fg = g:poi_colors[3]
   else
@@ -34,7 +50,7 @@ if exists('g:poi_colors')
   endif
 endif
 
-execute 'highlight poi ctermbg='.s:c_bg.' ctermfg='.s:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
+"execute 'highlight poi ctermbg='.g:c_bg.' ctermfg='.g:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
 
 function! s:MakeBuff()
   if !exists('b:lines')
@@ -192,6 +208,20 @@ function! s:PoiHelpQuickFix()
   copen
 endfunction
 
+function! s:ExecuteHighlight()
+  execute 'highlight poi ctermbg='.g:c_bg.' ctermfg='.g:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
+endfunction
+
+function! s:ChangeDefaultHighlight()
+  let g:current_poi += 1
+  if g:current_poi == len(g:contrast_poi)
+    let g:current_poi = 0
+  endif
+  let g:c_bg = g:contrast_poi[g:current_poi][0]
+  let g:c_fg = g:contrast_poi[g:current_poi][1]
+  call <SID>ExecuteHighlight()
+endfunction
+
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
@@ -199,3 +229,4 @@ com! -nargs=0 PoiPreview :call <SID>CreateQuickfix()
 vnoremap <Leader>hs "-y :PoiWord<CR>
 com! -nargs=0 PoiWord :call <SID>EchoWord(line('.'))
 com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
+com! -nargs=0 PoiChange :call <SID>ChangeDefaultHighlight()
