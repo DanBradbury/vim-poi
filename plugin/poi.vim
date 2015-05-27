@@ -3,28 +3,19 @@ let s:match_base = ':match poi1 '
 let s:match_base2 = ':2match poi2 '
 let s:match_base3 = ':3match poi3 '
 au! VimEnter * execute ":autocmd InsertLeave * call <SID>LineMatch1()"
-" ALL HIGHLIGHTING RELATED CODE
-" will need to be ripped out to support different presets
 au! ColorScheme * call <SID>ExecuteHighlight()
 au! BufEnter * call <SID>ExecuteHighlight()
 au! BufWinEnter * call <SID>ExecuteHighlight()
 
 au! BufEnter * call <SID>MakeBuff()
-au! CursorHold * call <SID>LineMatch1()
-au! CursorMoved * call <SID>LineMatch1()
-au! CursorMovedI * call <SID>LineMatch1()
+let matches  = 0
+while matches <= 2
+  let matches += 1
+  au! CursorHold * call <SID>LineMatch{matches}()
+  au! CursorMoved * call <SID>LineMatch{matches}()
+  au! CursorMovedI * call <SID>LineMatch{matches}()
+endwhile
 
-au! CursorHold * call <SID>LineMatch2()
-au! CursorMoved * call <SID>LineMatch2()
-au! CursorMovedI * call <SID>LineMatch2()
-
-au! CursorHold * call <SID>LineMatch3()
-au! CursorMoved * call <SID>LineMatch3()
-au! CursorMovedI * call <SID>LineMatch3()
-
-"for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
-let g:contrast_poi = [ ['white', 'black'], [226,129], [214,20], [196,227] ]
-let g:current_poi = 0
 " red / lightyellow
 let g:poi_bg1 = 196
 let g:poi_fg1 = 227
@@ -58,17 +49,14 @@ if exists('g:poi_colors')
 endif
 
 function! s:MakeBuff()
-  if !exists('b:poi_lines1')
-    let b:poi_lines1 = []
-  endif
-  "DRY this shit up!
-  if !exists('b:poi_lines2')
-    let b:poi_lines2 = []
-  endif
-
-  if !exists('b:poi_lines3')
-    let b:poi_lines3 = []
-  endif
+  let start = 1
+  let end = 3
+  while start <= end
+    if !exists('b:poi_lines'.start)
+      let b:poi_lines{start} = []
+    endif
+    let start += 1
+  endwhile
 endfunction
 
 function! s:LineMatch1()
@@ -146,7 +134,7 @@ function! s:LineMatch3()
   endif
 endfunction
 
-function! s:SafeAdd(...)
+function! s:AddLine(...)
   if a:1 == 0
     let s:line_num = line('.')
   else
@@ -214,46 +202,13 @@ function! s:SafeAdd(...)
   call s:LineMatch3()
 endfunction
 
-function! s:AddLine(...)
-  if a:1 == 0
-    let s:line_num = line('.')
-  else
-    let s:line_num = a:1
-  endif
-
-  let add = 1
-  let dup_ind = 99
-  let c = 0
-
-  "checking for duplicates
-  for i in b:poi_lines1
-    if s:line_num == i["line_num"]
-      let add = 0
-      let dup_ind = c
-    endif
-    let c += 1
-  endfor
-
-  "proceed to add to the poi_lines list
-  if add == 1
-    let line_content = escape(getline(s:line_num), '\/[]')
-    let safe_string = substitute(line_content, '^\ *', '\1', '')
-    call add(b:poi_lines1, {"line_num":s:line_num, "content":safe_string})
-  else
-    if dup_ind != 99
-      call remove(b:poi_lines1, dup_ind)
-    endif
-  endif
-  call s:LineMatch1()
-endfunction
-
 function! s:AddSelection(num, text)
   call s:AddToList(a:num, bufnr(''), a:text)
 endfunction
 
 function! s:AddSingleLine(num)
   call s:AddToList(a:num, bufnr(''), getline(a:num))
-  call s:SafeAdd(a:num)
+  call s:AddLine(a:num)
 endfunction
 
 function! s:AddRange(start, end)
@@ -262,7 +217,7 @@ function! s:AddRange(start, end)
   call s:AddToList(start, bufnr(''), getline(start))
 
   while start <= end
-    call s:SafeAdd(eval(start))
+    call s:AddLine(eval(start))
     let start += 1
   endwhile
 endfunction
@@ -360,17 +315,6 @@ function! s:ExecuteHighlight()
   execute 'highlight poi3 ctermbg='.g:poi_bg3.' ctermfg='.g:poi_fg3.' guibg='s:g_bg.' guifg='.s:g_fg
   execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='s:g_bg.' guifg='.s:g_fg
   execute 'highlight poi2 ctermbg='.g:poi_bg2.' ctermfg='.g:poi_fg2.' guibg='s:g_bg.' guifg='.s:g_fg
-  "will require an additional highlight group
-endfunction
-
-function! s:ChangeDefaultHighlight()
-  let g:current_poi += 1
-  if g:current_poi == len(g:contrast_poi)
-    let g:current_poi = 0
-  endif
-  let g:poi_bg1 = g:contrast_poi[g:current_poi][0]
-  let g:poi_fg1 = g:contrast_poi[g:current_poi][1]
-  call <SID>ExecuteHighlight()
 endfunction
 
 function! s:ChangeHighlightType(num)
@@ -425,8 +369,6 @@ com! -nargs=0 PoiWord :call <SID>EchoWord(line('.'))
 com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
 "new undocumented commands
 "TODO: add documentation + remove comments
-"com! -nargs=0 PoiChange :call <SID>ChangeDefaultHighlight()
 com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
 com! -nargs=0 -range PoiRangeChange :call <SID>ChangeRange(<line1>,<line2>)
-"will need a command for adding a range..
 
