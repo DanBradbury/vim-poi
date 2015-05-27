@@ -1,6 +1,8 @@
 " Highlight points of interest
-let s:match_base = ':match poi '
-au! VimEnter * execute ":autocmd InsertLeave * call <SID>MakeMatch()"
+let s:match_base = ':match poi1 '
+let s:match_base2 = ':2match poi2 '
+let s:match_base3 = ':3match poi3 '
+au! VimEnter * execute ":autocmd InsertLeave * call <SID>LineMatch1()"
 " ALL HIGHLIGHTING RELATED CODE
 " will need to be ripped out to support different presets
 au! ColorScheme * call <SID>ExecuteHighlight()
@@ -8,25 +10,30 @@ au! BufEnter * call <SID>ExecuteHighlight()
 au! BufWinEnter * call <SID>ExecuteHighlight()
 
 au! BufEnter * call <SID>MakeBuff()
-au! CursorHold * call <SID>MakeMatch()
-au! CursorMoved * call <SID>MakeMatch()
-au! CursorMovedI * call <SID>MakeMatch()
+au! CursorHold * call <SID>LineMatch1()
+au! CursorMoved * call <SID>LineMatch1()
+au! CursorMovedI * call <SID>LineMatch1()
 
+au! CursorHold * call <SID>LineMatch2()
+au! CursorMoved * call <SID>LineMatch2()
+au! CursorMovedI * call <SID>LineMatch2()
+
+au! CursorHold * call <SID>LineMatch3()
+au! CursorMoved * call <SID>LineMatch3()
+au! CursorMovedI * call <SID>LineMatch3()
 
 "for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
 let g:contrast_poi = [ ['white', 'black'], [226,129], [214,20], [196,227] ]
 let g:current_poi = 0
-let g:c_bg = 'white'
-let g:c_fg = 'black'
-" yellow/purple
-"let g:c_bg = 226
-"let g:c_fg = 129
-" organe/lightblue
-"let g:c_bg = 214
-"let g:c_fg = 20
 " red / lightyellow
-"let g:c_bg = 196
-"let g:c_fg = 227
+let g:poi_bg1 = 196
+let g:poi_fg1 = 227
+" yellow/purple
+let g:poi_bg2 = 226
+let g:poi_fg2 = 129
+" organe/lightblue
+let g:poi_bg3 = 214
+let g:poi_fg3 = 20
 
 let s:g_bg = '#fce122'
 let s:g_fg = '#18453b'
@@ -36,13 +43,13 @@ let g:pois = []
 
 if exists('g:poi_colors')
   if len(g:poi_colors) == 2
-    let g:c_bg = g:poi_colors[0]
-    let g:c_fg = g:poi_colors[1]
+    let g:poi_bg1 = g:poi_colors[0]
+    let g:poi_fg1 = g:poi_colors[1]
   elseif len(g:poi_colors) == 1
-    let g:c_bg = g:poi_colors[0]
+    let g:poi_bg1 = g:poi_colors[0]
   elseif len(g:poi_colors) == 4
-    let g:c_bg = g:poi_colors[0]
-    let g:c_fg = g:poi_colors[1]
+    let g:poi_bg1 = g:poi_colors[0]
+    let g:poi_fg1 = g:poi_colors[1]
     let s:g_bg = g:poi_colors[2]
     let s:g_fg = g:poi_colors[3]
   else
@@ -50,26 +57,82 @@ if exists('g:poi_colors')
   endif
 endif
 
-"execute 'highlight poi ctermbg='.g:c_bg.' ctermfg='.g:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
-
 function! s:MakeBuff()
-  if !exists('b:lines')
-    let b:lines = []
+  if !exists('b:poi_lines1')
+    let b:poi_lines1 = []
+  endif
+  "DRY this shit up!
+  if !exists('b:poi_lines2')
+    let b:poi_lines2 = []
+  endif
+
+  if !exists('b:poi_lines3')
+    let b:poi_lines3 = []
   endif
 endfunction
 
-function! s:MakeMatch()
-  if exists('b:lines')
+function! s:LineMatch1()
+  if exists('b:poi_lines1')
     let s:build_string = s:match_base
     let c = 0
-    for i in b:lines
+    for i in b:poi_lines1
       let c += 1
       if c == 1
         let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
       else
         let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
       endif
-      if c == len(b:lines)
+      if c == len(b:poi_lines1)
+        let s:build_string = s:build_string.'/'
+      else
+        let s:build_string = s:build_string.'\|'
+      endif
+    endfor
+
+    if c == 0
+      let s:build_string = s:build_string.'//'
+    endif
+    execute s:build_string
+  endif
+endfunction
+
+function! s:LineMatch2()
+  if exists('b:poi_lines2')
+    let s:build_string = s:match_base2
+    let c = 0
+    for i in b:poi_lines2
+      let c += 1
+      if c == 1
+        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
+      else
+        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
+      endif
+      if c == len(b:poi_lines2)
+        let s:build_string = s:build_string.'/'
+      else
+        let s:build_string = s:build_string.'\|'
+      endif
+    endfor
+
+    if c == 0
+      let s:build_string = s:build_string.'//'
+    endif
+    execute s:build_string
+  endif
+endfunction
+
+function! s:LineMatch3()
+  if exists('b:poi_lines3')
+    let s:build_string = s:match_base3
+    let c = 0
+    for i in b:poi_lines3
+      let c += 1
+      if c == 1
+        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
+      else
+        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
+      endif
+      if c == len(b:poi_lines3)
         let s:build_string = s:build_string.'/'
       else
         let s:build_string = s:build_string.'\|'
@@ -94,7 +157,7 @@ function! s:AddLine(...)
   let dup_ind = 99
   let c = 0
 
-  for i in b:lines
+  for i in b:poi_lines1
     if s:line_num == i["line_num"]
       let add = 0
       let dup_ind = c
@@ -105,13 +168,13 @@ function! s:AddLine(...)
   if add == 1
     let line_content = escape(getline(s:line_num), '\/[]')
     let safe_string = substitute(line_content, '^\ *', '\1', '')
-    call add(b:lines, {"line_num":s:line_num, "content":safe_string})
+    call add(b:poi_lines1, {"line_num":s:line_num, "content":safe_string})
   else
     if dup_ind != 99
-      call remove(b:lines, dup_ind)
+      call remove(b:poi_lines1, dup_ind)
     endif
   endif
-  call s:MakeMatch()
+  call s:LineMatch1()
 endfunction
 
 function! s:AddSelection(num, text)
@@ -155,8 +218,12 @@ endfunction
 
 function! s:ClearPoi()
   call s:CleanQuickfix(bufnr(''))
-  let b:lines = []
-  call s:MakeMatch()
+  let b:poi_lines1 = []
+  let b:poi_lines2 = []
+  let b:poi_lines3 = []
+  call s:LineMatch1()
+  call s:LineMatch2()
+  call s:LineMatch3()
 endfunction
 
 function! s:CleanQuickfix(bufnum)
@@ -209,7 +276,11 @@ function! s:PoiHelpQuickFix()
 endfunction
 
 function! s:ExecuteHighlight()
-  execute 'highlight poi ctermbg='.g:c_bg.' ctermfg='.g:c_fg.' guibg='s:g_bg.' guifg='.s:g_fg
+  "TODO: update entire gui section
+  execute 'highlight poi3 ctermbg='.g:poi_bg3.' ctermfg='.g:poi_fg3.' guibg='s:g_bg.' guifg='.s:g_fg
+  execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='s:g_bg.' guifg='.s:g_fg
+  execute 'highlight poi2 ctermbg='.g:poi_bg2.' ctermfg='.g:poi_fg2.' guibg='s:g_bg.' guifg='.s:g_fg
+  "will require an additional highlight group
 endfunction
 
 function! s:ChangeDefaultHighlight()
@@ -217,9 +288,52 @@ function! s:ChangeDefaultHighlight()
   if g:current_poi == len(g:contrast_poi)
     let g:current_poi = 0
   endif
-  let g:c_bg = g:contrast_poi[g:current_poi][0]
-  let g:c_fg = g:contrast_poi[g:current_poi][1]
+  let g:poi_bg1 = g:contrast_poi[g:current_poi][0]
+  let g:poi_fg1 = g:contrast_poi[g:current_poi][1]
   call <SID>ExecuteHighlight()
+endfunction
+
+function! s:ChangeHighlightType(num)
+  let add = 0
+  "check if the highlight exists in the first group
+  let c = 0
+  for i in b:poi_lines1
+    if a:num == i["line_num"]
+      call add(b:poi_lines2, i)
+      call remove(b:poi_lines1, c)
+      let add = 1
+      call <SID>LineMatch2()
+    endif
+    let c += 1
+  endfor
+
+  "do the same for the second group
+  if add == 0
+    let c = 0
+    for i in b:poi_lines2
+      if a:num == i["line_num"]
+        call add(b:poi_lines3, i)
+        call remove(b:poi_lines2, c)
+        let add = 1
+        call <SID>LineMatch3()
+      endif
+      let c += 1
+    endfor
+  endif
+
+  "and finally with the third group
+  if add == 0
+    let c = 0
+    for i in b:poi_lines3
+      if a:num == i["line_num"]
+        call add(b:poi_lines1, i)
+        call remove(b:poi_lines3, c)
+        let add = 1
+        call <SID>LineMatch1()
+      endif
+      let c += 1
+    endfor
+  endif
 endfunction
 
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
@@ -229,4 +343,9 @@ com! -nargs=0 PoiPreview :call <SID>CreateQuickfix()
 vnoremap <Leader>hs "-y :PoiWord<CR>
 com! -nargs=0 PoiWord :call <SID>EchoWord(line('.'))
 com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
-com! -nargs=0 PoiChange :call <SID>ChangeDefaultHighlight()
+"new undocumented commands
+"TODO: add documentation + remove comments
+"com! -nargs=0 PoiChange :call <SID>ChangeDefaultHighlight()
+com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
+"will need a command for adding a range..
+
