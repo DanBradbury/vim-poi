@@ -146,6 +146,74 @@ function! s:LineMatch3()
   endif
 endfunction
 
+function! s:SafeAdd(...)
+  if a:1 == 0
+    let s:line_num = line('.')
+  else
+    let s:line_num = a:1
+  endif
+  let dup_found = 0
+  let dup_index = -1
+  let dup_list = 0
+
+  "check for dups across all lists
+  let c = 0
+  for i in b:poi_lines1
+    if s:line_num == i["line_num"]
+      let dup_found = 1
+      let dup_index = c
+      let dup_list = 1
+    endif
+    let c += 1
+  endfor
+
+  if dup_found == 0
+    let c = 0
+    for i in b:poi_lines2
+      if s:line_num == i["line_num"]
+        let dup_found = 1
+        let dup_index = c
+        let dup_list = 2
+      endif
+      let c += 1
+    endfor
+  endif
+
+  if dup_found == 0
+    let c = 0
+    for i in b:poi_lines3
+      if s:line_num == i["line_num"]
+        let dup_found = 1
+        let dup_index = c
+        let dup_list = 3
+      endif
+      let c += 1
+    endfor
+  endif
+
+  "check if we have found a duplicate across all lists
+  if dup_found == 1
+    if dup_index != -1
+      "remove from the appropriate list
+      if dup_list == 1
+        call remove(b:poi_lines1, dup_index)
+      elseif dup_list == 2
+        call remove(b:poi_lines2, dup_index)
+      elseif dup_list == 3
+        call remove(b:poi_lines3, dup_index)
+      endif
+    endif
+  else
+    "just go ahead and add the the first list
+    let line_content = escape(getline(s:line_num), '\/[]')
+    let safe_string = substitute(line_content, '^\ *', '\1', '')
+    call add(b:poi_lines1, {"line_num":s:line_num, "content":safe_string})
+  endif
+  call s:LineMatch1()
+  call s:LineMatch2()
+  call s:LineMatch3()
+endfunction
+
 function! s:AddLine(...)
   if a:1 == 0
     let s:line_num = line('.')
@@ -157,6 +225,7 @@ function! s:AddLine(...)
   let dup_ind = 99
   let c = 0
 
+  "checking for duplicates
   for i in b:poi_lines1
     if s:line_num == i["line_num"]
       let add = 0
@@ -165,6 +234,7 @@ function! s:AddLine(...)
     let c += 1
   endfor
 
+  "proceed to add to the poi_lines list
   if add == 1
     let line_content = escape(getline(s:line_num), '\/[]')
     let safe_string = substitute(line_content, '^\ *', '\1', '')
@@ -183,7 +253,7 @@ endfunction
 
 function! s:AddSingleLine(num)
   call s:AddToList(a:num, bufnr(''), getline(a:num))
-  call s:AddLine(a:num)
+  call s:SafeAdd(a:num)
 endfunction
 
 function! s:AddRange(start, end)
@@ -192,7 +262,17 @@ function! s:AddRange(start, end)
   call s:AddToList(start, bufnr(''), getline(start))
 
   while start <= end
-    call s:AddLine(eval(start))
+    call s:SafeAdd(eval(start))
+    let start += 1
+  endwhile
+endfunction
+
+function! s:ChangeRange(start, end)
+  let start = a:start
+  let end = a:end
+
+  while start <= end
+    call s:ChangeHighlightType(eval(start))
     let start += 1
   endwhile
 endfunction
@@ -347,5 +427,6 @@ com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
 "TODO: add documentation + remove comments
 "com! -nargs=0 PoiChange :call <SID>ChangeDefaultHighlight()
 com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
+com! -nargs=0 -range PoiRangeChange :call <SID>ChangeRange(<line1>,<line2>)
 "will need a command for adding a range..
 
