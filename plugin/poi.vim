@@ -1,5 +1,5 @@
 " Highlight points of interest
-let s:match_base = ':match poi1 '
+let s:match_base  = ':match poi1 '
 let s:match_base2 = ':2match poi2 '
 let s:match_base3 = ':3match poi3 '
 au! VimEnter * execute ":autocmd InsertLeave * call <SID>LineMatch1()"
@@ -23,17 +23,18 @@ endwhile
 " for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
 " xterm 256 color chart: http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 " helpful contrast comparison tool: http://leaverou.github.io/contrast-ratio
+"
 " red / white
 let g:poi_bg1 = 88
 let g:poi_fg1 = 15
 let g:g_poi_bg1 = "#870000"
 let g:g_poi_fg1 = "#ffffff"
-" yellow/purple
+" yellow / purple
 let g:poi_bg2 = 226
 let g:poi_fg2 = 93
 let g:g_poi_bg2 = "#ffff00"
 let g:g_poi_fg2 = "#8700ff"
-" organe/lightblue
+" orange / lightblue
 let g:poi_bg3 = 208
 let g:poi_fg3 = 17
 let g:g_poi_bg3 = "#ff8700"
@@ -154,7 +155,7 @@ function! s:AddLine(...)
   let dup_index = -1
   let dup_list = 0
 
-  "check for dups across all lists
+  " check for dups across all lists
   let c = 0
   for i in b:poi_lines1
     if s:line_num == i["line_num"]
@@ -189,10 +190,10 @@ function! s:AddLine(...)
     endfor
   endif
 
-  "check if we have found a duplicate across all lists
+  " check if we have found a duplicate across all lists
   if dup_found == 1
     if dup_index != -1
-      "remove from the appropriate list
+      " remove from the appropriate list
       if dup_list == 1
         call remove(b:poi_lines1, dup_index)
       elseif dup_list == 2
@@ -202,7 +203,7 @@ function! s:AddLine(...)
       endif
     endif
   else
-    "just go ahead and add the the first list
+    " just go ahead and add the the first list
     let line_content = escape(getline(s:line_num), '\/[]')
     let safe_string = substitute(line_content, '^\ *', '\1', '')
     call add(b:poi_lines1, {"line_num":s:line_num, "content":safe_string})
@@ -246,7 +247,7 @@ function! s:AddToList(line, bufnum, content)
   let dup_found = 0
   let pois_copy = []
 
-  "check if the element already exists
+  " check if the element already exists
   for l in g:pois
     if l['line'] == a:line && l['bufnum'] == a:bufnum
       let dup_found = 1
@@ -307,7 +308,7 @@ function! s:PoiHelpQuickFix()
   let s:readme = globpath(&runtimepath, '*/vim-poi/README.md')
   let s:file_name = split(s:readme, "/")[-1]
 
-  for line in readfile(s:readme, '', 33)
+  for line in readfile(s:readme, '', 34)
     if line =~ 'nnoremap' || line =~ 'vnoremap'
       call add(help_commands, { 'file_name': s:file_name, 'command': line })
     endif
@@ -328,7 +329,7 @@ endfunction
 
 function! s:ChangeHighlightType(num)
   let add = 0
-  "check if the highlight exists in the first group
+  " check if the highlight exists in the first group
   let c = 0
   for i in b:poi_lines1
     if a:num == i["line_num"]
@@ -340,7 +341,7 @@ function! s:ChangeHighlightType(num)
     let c += 1
   endfor
 
-  "do the same for the second group
+  " do the same for the second group
   if add == 0
     let c = 0
     for i in b:poi_lines2
@@ -354,7 +355,7 @@ function! s:ChangeHighlightType(num)
     endfor
   endif
 
-  "and finally with the third group
+  " and finally with the third group
   if add == 0
     let c = 0
     for i in b:poi_lines3
@@ -393,4 +394,3 @@ com! -nargs=0 PoiWord :call <SID>EchoWord(line('.'))
 com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
 com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
 com! -nargs=0 -range PoiRangeChange :call <SID>ChangeRange(<line1>,<line2>)
-
