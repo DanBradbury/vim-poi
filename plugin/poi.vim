@@ -1,5 +1,5 @@
 " Highlight points of interest
-let s:match_base  = ':match poi1 '
+let s:match_base1  = ':match poi1 '
 let s:match_base2 = ':2match poi2 '
 let s:match_base3 = ':3match poi3 '
 au! VimEnter * execute ":autocmd InsertLeave * call <SID>LineMatch(1)"
@@ -320,19 +320,50 @@ function! s:ChangeHighlightType(num)
   endif
 endfunction
 
+function! s:RemoveFromPreview(content)
+  let dup_found = 0
+  let dup_ind = -1
+  let c = 0
+  for i in g:pois
+    if i["content"] == a:content
+      let dup_found = 1
+      let dup_ind = c
+    endif
+    let c += 1
+  endfor
+  if dup_found != 0
+    call remove(g:pois, dup_ind)
+  endif
+endfunction
+
+function! s:RemoveFromListing(list_num, index)
+  call remove(b:poi_lines{a:list_num}, a:index)
+endfunction
+
 function! s:CleanupCrew()
+  let remove_later = []
+  let list_count = 0
+  let orig_line = line('.')
+  let orig_col = col('.')
   for l in [b:poi_lines1, b:poi_lines2, b:poi_lines3]
+    let list_count += 1
+    let c = 0
     for i in l
       norm gg0
-      execute('/\M'.i['content'])
-      let cur_line = line('.')
-      let @/ = ""
-      let i["line_num"] = cur_line
+      if match(getline(1,"$"), '\%'.string(i["line_num"]).'l\&\M'.i["content"]) != -1
+        execute('/\M'.i['content'])
+        let cur_line = line('.')
+        let @/ = ""
+        let i["line_num"] = cur_line
+      endif
+      let c += 1
     endfor
   endfor
+
   call s:LineMatch(1)
   call s:LineMatch(2)
   call s:LineMatch(3)
+  call cursor(orig_line, orig_col)
 endfunction
 
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
