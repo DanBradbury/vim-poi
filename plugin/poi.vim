@@ -2,7 +2,7 @@
 let s:match_base  = ':match poi1 '
 let s:match_base2 = ':2match poi2 '
 let s:match_base3 = ':3match poi3 '
-au! VimEnter * execute ":autocmd InsertLeave * call <SID>LineMatch1()"
+au! VimEnter * execute ":autocmd InsertLeave * call <SID>LineMatch(1)"
 au! VimEnter * execute ":autocmd InsertLeave * call <SID>CleanupCrew()"
 au! ColorScheme * call <SID>ExecuteHighlight()
 au! BufEnter * call <SID>ExecuteHighlight()
@@ -15,9 +15,9 @@ au! BufEnter * call <SID>MakeBuff()
 let matches  = 0
 while matches <= 2
   let matches += 1
-  au! CursorHold * call <SID>LineMatch{matches}()
-  au! CursorMoved * call <SID>LineMatch{matches}()
-  au! CursorMovedI * call <SID>LineMatch{matches}()
+  au! CursorHold * call <SID>LineMatch(matches)
+  au! CursorMoved * call <SID>LineMatch(matches)
+  au! CursorMovedI * call <SID>LineMatch(matches)
 endwhile
 
 " for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
@@ -70,68 +70,18 @@ function! s:MakeBuff()
   endwhile
 endfunction
 
-function! s:LineMatch1()
-  if exists('b:poi_lines1')
-    let s:build_string = s:match_base
+function! s:LineMatch(group)
+  if exists("b:poi_lines".a:group)
+    let s:build_string = s:match_base{a:group}
     let c = 0
-    for i in b:poi_lines1
+    for i in b:poi_lines{a:group}
       let c += 1
       if c == 1
         let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
       else
         let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
       endif
-      if c == len(b:poi_lines1)
-        let s:build_string = s:build_string.'/'
-      else
-        let s:build_string = s:build_string.'\|'
-      endif
-    endfor
-
-    if c == 0
-      let s:build_string = s:build_string.'//'
-    endif
-    execute s:build_string
-  endif
-endfunction
-
-function! s:LineMatch2()
-  if exists('b:poi_lines2')
-    let s:build_string = s:match_base2
-    let c = 0
-    for i in b:poi_lines2
-      let c += 1
-      if c == 1
-        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      else
-        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      endif
-      if c == len(b:poi_lines2)
-        let s:build_string = s:build_string.'/'
-      else
-        let s:build_string = s:build_string.'\|'
-      endif
-    endfor
-
-    if c == 0
-      let s:build_string = s:build_string.'//'
-    endif
-    execute s:build_string
-  endif
-endfunction
-
-function! s:LineMatch3()
-  if exists('b:poi_lines3')
-    let s:build_string = s:match_base3
-    let c = 0
-    for i in b:poi_lines3
-      let c += 1
-      if c == 1
-        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      else
-        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      endif
-      if c == len(b:poi_lines3)
+      if c == len(b:poi_lines{a:group})
         let s:build_string = s:build_string.'/'
       else
         let s:build_string = s:build_string.'\|'
@@ -208,9 +158,9 @@ function! s:AddLine(...)
     let safe_string = substitute(line_content, '^\ *', '\1', '')
     call add(b:poi_lines1, {"line_num":s:line_num, "content":safe_string})
   endif
-  call s:LineMatch1()
-  call s:LineMatch2()
-  call s:LineMatch3()
+  call s:LineMatch(1)
+  call s:LineMatch(2)
+  call s:LineMatch(3)
 endfunction
 
 function! s:AddSelection(num, text)
@@ -267,9 +217,9 @@ function! s:ClearPoi()
   let b:poi_lines1 = []
   let b:poi_lines2 = []
   let b:poi_lines3 = []
-  call s:LineMatch1()
-  call s:LineMatch2()
-  call s:LineMatch3()
+  call s:LineMatch(1)
+  call s:LineMatch(2)
+  call s:LineMatch(3)
 endfunction
 
 function! s:CleanQuickfix(bufnum)
@@ -336,7 +286,7 @@ function! s:ChangeHighlightType(num)
       call add(b:poi_lines2, i)
       call remove(b:poi_lines1, c)
       let add = 1
-      call <SID>LineMatch2()
+      call <SID>LineMatch(2)
     endif
     let c += 1
   endfor
@@ -349,7 +299,7 @@ function! s:ChangeHighlightType(num)
         call add(b:poi_lines3, i)
         call remove(b:poi_lines2, c)
         let add = 1
-        call <SID>LineMatch3()
+        call <SID>LineMatch(3)
       endif
       let c += 1
     endfor
@@ -363,7 +313,7 @@ function! s:ChangeHighlightType(num)
         call add(b:poi_lines1, i)
         call remove(b:poi_lines3, c)
         let add = 1
-        call <SID>LineMatch1()
+        call <SID>LineMatch(1)
       endif
       let c += 1
     endfor
@@ -380,9 +330,9 @@ function! s:CleanupCrew()
       let i["line_num"] = cur_line
     endfor
   endfor
-  call s:LineMatch1()
-  call s:LineMatch2()
-  call s:LineMatch3()
+  call s:LineMatch(1)
+  call s:LineMatch(2)
+  call s:LineMatch(3)
 endfunction
 
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
