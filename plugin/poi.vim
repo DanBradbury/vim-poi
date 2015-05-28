@@ -20,18 +20,22 @@ while matches <= 2
   au! CursorMovedI * call <SID>LineMatch{matches}()
 endwhile
 
-" red / lightyellow
-let g:poi_bg1 = 196
-let g:poi_fg1 = 227
+" for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
+" red / white
+let g:poi_bg1 = 88
+let g:poi_fg1 = 15
+let g:g_poi_bg1 = "#870000"
+let g:g_poi_fg1 = "#ffffff"
 " yellow/purple
 let g:poi_bg2 = 226
-let g:poi_fg2 = 129
+let g:poi_fg2 = 93
+let g:g_poi_bg2 = "#ffff00"
+let g:g_poi_fg2 = "#8700ff"
 " organe/lightblue
-let g:poi_bg3 = 214
-let g:poi_fg3 = 20
-
-let s:g_bg = '#fce122'
-let s:g_fg = '#18453b'
+let g:poi_bg3 = 208
+let g:poi_fg3 = 17
+let g:g_poi_bg3 = "#ff8700"
+let g:g_poi_fg3 = "#00005f"
 
 " { 'line': num, 'bufnum': num, 'content': text }
 let g:pois = []
@@ -315,10 +319,9 @@ function! s:PoiHelpQuickFix()
 endfunction
 
 function! s:ExecuteHighlight()
-  "TODO: update entire gui section
-  execute 'highlight poi3 ctermbg='.g:poi_bg3.' ctermfg='.g:poi_fg3.' guibg='s:g_bg.' guifg='.s:g_fg
-  execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='s:g_bg.' guifg='.s:g_fg
-  execute 'highlight poi2 ctermbg='.g:poi_bg2.' ctermfg='.g:poi_fg2.' guibg='s:g_bg.' guifg='.s:g_fg
+  execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='g:g_poi_bg1.' guifg='.g:g_poi_fg1
+  execute 'highlight poi2 ctermbg='.g:poi_bg2.' ctermfg='.g:poi_fg2.' guibg='g:g_poi_bg2.' guifg='.g:g_poi_fg2
+  execute 'highlight poi3 ctermbg='.g:poi_bg3.' ctermfg='.g:poi_fg3.' guibg='g:g_poi_bg3.' guifg='.g:g_poi_fg3
 endfunction
 
 function! s:ChangeHighlightType(num)
@@ -386,8 +389,6 @@ com! -nargs=0 PoiPreview :call <SID>CreateQuickfix()
 vnoremap <Leader>hs "-y :PoiWord<CR>
 com! -nargs=0 PoiWord :call <SID>EchoWord(line('.'))
 com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
-"new undocumented commands
-"TODO: add documentation + remove comments
 com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
 com! -nargs=0 -range PoiRangeChange :call <SID>ChangeRange(<line1>,<line2>)
 
