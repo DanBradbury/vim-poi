@@ -15,9 +15,9 @@ au! BufEnter * call <SID>MakeBuff()
 let matches  = 0
 while matches <= 2
   let matches += 1
-  au! CursorHold * call <SID>LineMatch{matches}()
-  au! CursorMoved * call <SID>LineMatch{matches}()
-  au! CursorMovedI * call <SID>LineMatch{matches}()
+  au! CursorHold * call <SID>LineMatch(matches)
+  au! CursorMoved * call <SID>LineMatch(matches)
+  au! CursorMovedI * call <SID>LineMatch(matches)
 endwhile
 
 " for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
@@ -70,68 +70,18 @@ function! s:MakeBuff()
   endwhile
 endfunction
 
-function! s:LineMatch1()
-  if exists('b:poi_lines1')
-    let s:build_string = s:match_base
+function! s:LineMatch(group)
+  if exists("b:poi_lines".a:group)
+    let s:build_string = s:match_base{a:group}
     let c = 0
-    for i in b:poi_lines1
+    for i in b:poi_lines{a:group}
       let c += 1
       if c == 1
         let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
       else
         let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
       endif
-      if c == len(b:poi_lines1)
-        let s:build_string = s:build_string.'/'
-      else
-        let s:build_string = s:build_string.'\|'
-      endif
-    endfor
-
-    if c == 0
-      let s:build_string = s:build_string.'//'
-    endif
-    execute s:build_string
-  endif
-endfunction
-
-function! s:LineMatch2()
-  if exists('b:poi_lines2')
-    let s:build_string = s:match_base2
-    let c = 0
-    for i in b:poi_lines2
-      let c += 1
-      if c == 1
-        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      else
-        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      endif
-      if c == len(b:poi_lines2)
-        let s:build_string = s:build_string.'/'
-      else
-        let s:build_string = s:build_string.'\|'
-      endif
-    endfor
-
-    if c == 0
-      let s:build_string = s:build_string.'//'
-    endif
-    execute s:build_string
-  endif
-endfunction
-
-function! s:LineMatch3()
-  if exists('b:poi_lines3')
-    let s:build_string = s:match_base3
-    let c = 0
-    for i in b:poi_lines3
-      let c += 1
-      if c == 1
-        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      else
-        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      endif
-      if c == len(b:poi_lines3)
+      if c == len(b:poi_lines{a:group})
         let s:build_string = s:build_string.'/'
       else
         let s:build_string = s:build_string.'\|'
