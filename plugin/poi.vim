@@ -1,4 +1,11 @@
 " Highlight points of interest
+"want to replace all of these with a matchadd command
+"will be a good idea to start with the first match and move on from there..
+"issue is that match is a pattern command while matchadd is a eval function
+" -> :match poi1 //                         Valid
+" -> :matchadd poi1 //                      NotValid
+" -> :echo matchadd('poi1', '')             Valid
+let g:matches_lines1 = []
 let s:match_base = ':match poi1 '
 let s:match_base2 = ':2match poi2 '
 let s:match_base3 = ':3match poi3 '
@@ -70,6 +77,20 @@ function! s:MakeBuff()
 endfunction
 
 function! s:LineMatch1()
+  call clearmatches()
+  if exists('b:poi_lines1')
+    for i in b:poi_lines1
+      "let som = '\\%'.string(i["line_num]).'l'.i["content"]
+      "echo som
+      let som = '\M'.i["content"]
+      call matchadd("poi1", som)
+    endfor
+  endif
+
+endfunction
+
+function! s:LineMatch1old()
+  "previous build string logic
   if exists('b:poi_lines1')
     let s:build_string = s:match_base
     let c = 0
@@ -90,6 +111,7 @@ function! s:LineMatch1()
     if c == 0
       let s:build_string = s:build_string.'//'
     endif
+    "run string like ":match poi1 //
     execute s:build_string
   endif
 endfunction
