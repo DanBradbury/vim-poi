@@ -21,6 +21,8 @@ while matches <= 2
 endwhile
 
 " for additional high contrasting colors refer to TABLE-1 in http://www.iscc.org/pdf/PC54_1724_001.pdf
+" xterm 256 color chart: http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
+" helpful contrast comparison tool: http://leaverou.github.io/contrast-ratio
 " red / white
 let g:poi_bg1 = 88
 let g:poi_fg1 = 15
