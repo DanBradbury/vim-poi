@@ -350,12 +350,10 @@ function! s:CleanupCrew()
     let c = 0
     for i in l
       norm gg0
-      if match(getline(1,"$"), '\%'.string(i["line_num"]).'l\&\M'.i["content"]) != -1
-        execute('/\M'.i['content'])
-        let cur_line = line('.')
-        let @/ = ""
-        let i["line_num"] = cur_line
-      endif
+      execute('/\M'.i['content'])
+      let cur_line = line('.')
+      let @/ = ""
+      let i["line_num"] = cur_line
       let c += 1
     endfor
   endfor
