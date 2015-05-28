@@ -3,6 +3,7 @@
 vim-poi (points of interest), makes it easy to highlight "important" lines of code (ideal for pair programming or visualizing complex code paths). Highlights are unique to the buffer and can be accessed anywhere in the session using the `:PoiPreview` quickfix window.
 
 ![](http://i.imgur.com/lNgmGme.gif)
+
 *High contrast colors have been selected for optimal viewing experience across all versions.*
 
 ## Installation
