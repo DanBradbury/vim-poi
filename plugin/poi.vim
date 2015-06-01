@@ -2,16 +2,12 @@
 let s:match_base1  = ':match poi1 '
 let s:match_base2 = ':2match poi2 '
 let s:match_base3 = ':3match poi3 '
-au! VimEnter * execute ":autocmd InsertLeave * call <SID>LineMatch(1)"
-au! VimEnter * execute ":autocmd InsertLeave * call <SID>CleanupCrew()"
+au! VimEnter * call <SID>CmdInit()
 au! ColorScheme * call <SID>ExecuteHighlight()
 au! BufEnter * call <SID>ExecuteHighlight()
 au! BufWinEnter * call <SID>ExecuteHighlight()
-au! CursorHold * call <SID>CleanupCrew()
-au! CursorMoved * call <SID>CleanupCrew()
-au! CursorMovedI * call <SID>CleanupCrew()
-
 au! BufEnter * call <SID>MakeBuff()
+
 let matches  = 0
 while matches <= 2
   let matches += 1
@@ -58,6 +54,14 @@ if exists('g:poi_colors')
     echo "You've provided an invalid g:poi_highlight_colors"
   endif
 endif
+
+function! s:CmdInit()
+  au! InsertEnter * call <SID>CleanupCrew()
+  au! InsertLeave * call <SID>CleanupCrew()
+  au! CursorHold * call <SID>CleanupCrew()
+  au! CursorHoldI * call <SID>CleanupCrew()
+  au! CursorMoved * call <SID>CleanupCrew()
+endfunction
 
 function! s:MakeBuff()
   let start = 1
@@ -373,3 +377,4 @@ com! -nargs=0 PoiWord :call <SID>EchoWord(line('.'))
 com! -nargs=0 PoiHelp :call <SID>PoiHelpQuickFix()
 com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
 com! -nargs=0 -range PoiRangeChange :call <SID>ChangeRange(<line1>,<line2>)
+
