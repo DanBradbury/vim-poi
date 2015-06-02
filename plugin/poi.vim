@@ -345,27 +345,29 @@ function! s:RemoveFromListing(list_num, index)
 endfunction
 
 function! s:CleanupCrew()
-  let remove_later = []
-  let list_count = 0
-  let orig_line = line('.')
-  let orig_col = col('.')
-  for l in [b:poi_lines1, b:poi_lines2, b:poi_lines3]
-    let list_count += 1
-    let c = 0
-    for i in l
-      norm gg0
-      execute('/\M'.i['content'])
-      let cur_line = line('.')
-      let @/ = ""
-      let i["line_num"] = cur_line
-      let c += 1
+  if exists('b:poi_lines1') && exists('b:poi_lines2') && exists('b:poi_lines3')
+    let remove_later = []
+    let list_count = 0
+    let orig_line = line('.')
+    let orig_col = col('.')
+    for l in [b:poi_lines1, b:poi_lines2, b:poi_lines3]
+      let list_count += 1
+      let c = 0
+      for i in l
+        norm gg0
+        execute('/\M'.i['content'])
+        let cur_line = line('.')
+        let @/ = ""
+        let i["line_num"] = cur_line
+        let c += 1
+      endfor
     endfor
-  endfor
 
-  call s:LineMatch(1)
-  call s:LineMatch(2)
-  call s:LineMatch(3)
-  call cursor(orig_line, orig_col)
+    call s:LineMatch(1)
+    call s:LineMatch(2)
+    call s:LineMatch(3)
+    call cursor(orig_line, orig_col)
+  endif
 endfunction
 
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
