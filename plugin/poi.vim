@@ -2,6 +2,7 @@
 let s:match_base1  = ':match poi1 '
 let s:match_base2 = ':2match poi2 '
 let s:match_base3 = ':3match poi3 '
+
 au! VimEnter * call <SID>CmdInit()
 au! ColorScheme * call <SID>ExecuteHighlight()
 au! BufEnter * call <SID>ExecuteHighlight()
@@ -354,11 +355,35 @@ function! s:CleanupCrew()
       let list_count += 1
       let c = 0
       for i in l
+        let lin_num = -1
         norm gg0
-        execute('/\M'.i['content'])
-        let cur_line = line('.')
-        let @/ = ""
-        let i["line_num"] = cur_line
+        "wont work.. because there is no way to turn magic off for :help search
+        "let line_num = search(i['content'])
+        " this method is naive since lines / patterns an disappear from the buffer
+        " this will result in the 'Pattern not found' error
+        "execute('/\M'.i['content'])
+        "jforce: suggested using the :%s/content\v/content/g would do the trick
+        "will need to be modified slightly to not replace any matches
+        " other possibillity to use redirects for the execute?
+        "redir @a
+        "execute('/\M'.i['content'])
+        "redir END
+        redir @a
+        execute('%s/\M^\ *'.i['content'].'//enp')
+        redir END
+        if @a =~ "1 match on 1 line"
+          execute('/\M'.i['content'])
+          let cur_line = line('.')
+          let @/ = ""
+          let i["line_num"] = cur_line
+        else 
+          echo @a 
+          execute('/\M'.i['content'])
+          let cur_line = line('.')
+          let @/ = ""
+          let i["line_num"] = cur_line
+          "should remove from this list..
+        endif
         let c += 1
       endfor
     endfor
@@ -367,6 +392,7 @@ function! s:CleanupCrew()
     call s:LineMatch(2)
     call s:LineMatch(3)
     call cursor(orig_line, orig_col)
+    echo "cleanup run" 
   endif
 endfunction
 
