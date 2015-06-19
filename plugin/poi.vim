@@ -355,10 +355,17 @@ function! s:CleanupCrew()
       let c = 0
       for i in l
         norm gg0
+        let v:errmsg = ""
+        "will throw an error when you have removed an old pattern that was previously highlighted
         execute('/\M'.i['content'])
-        let cur_line = line('.')
-        let @/ = ""
-        let i["line_num"] = cur_line
+        if len(v:errmsg) == 0
+          let cur_line = line('.')
+          let @/ = ""
+          let i["line_num"] = cur_line
+        else
+          " remove element i from list l
+          call remove(l, c)
+        endif
         let c += 1
       endfor
     endfor
