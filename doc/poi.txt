@@ -6,6 +6,6 @@ Licence: Same terms as vim itself (see |license|)
 
 INTRODUCTION                                        *poi*
 
-Highlight line(s) to standout when editting.
+Highlight line(s) to standout when editting. Built to improve the pair programming process (help visualize code paths and quickly reference important sections of code).
 
 COMMANDS                                            *poi-commands*
