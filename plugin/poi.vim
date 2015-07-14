@@ -13,9 +13,14 @@ let g:poi_fg1 = 15
 let g:g_poi_bg1 = "#870000"
 let g:g_poi_fg1 = "#ffffff"
 
+" will be necessary when implementing the preview functionality (for now its not used)
 let g:pois = []
 
 au! BufEnter * call <SID>MakeBuff()
+
+function! s:ExecuteHighlight()
+  execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='g:g_poi_bg1.' guifg='.g:g_poi_fg1
+endfunction
 
 function! s:MakeBuff()
   let start = 1
@@ -28,11 +33,7 @@ function! s:MakeBuff()
   endwhile
 endfunction
 
-function! s:ExecuteHighlight()
-  execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='g:g_poi_bg1.' guifg='.g:g_poi_fg1
-endfunction
-
-" Poi Line
+" general helper methods
 function! s:AddToList(match_id, line_num, content)
   let dup_found = 0
   let dup_index = -1
@@ -60,8 +61,7 @@ function! s:AddToList(match_id, line_num, content)
   endif
 endfunction
 
-" Returns -1000 if no match is found
-" will return the match_id to be used by matchdelete
+" return the match_id to be used by matchdelete or -1000 if no dup is found
 function! s:CheckList(line_num, content)
   let dup_found = 0
   let match_id = 0
@@ -80,6 +80,7 @@ function! s:CheckList(line_num, content)
   endif
 endfunction
 
+" Poi Line
 function! s:AddMatch(line, content)
   let value = eval(s:CheckList(a:line, a:content))
   if value != -1000
@@ -99,5 +100,18 @@ function! s:AddSingleLine(num)
   call s:AddMatch(a:num, getline(a:num))
 endfunction
 
+" Poi Lines
+function! s:AddRange(start, end)
+  let start = a:start
+  let end = a:end
+  "call s:AddToList(start, bufnr(''), getline(start))
+
+  while start <= end
+    call s:AddSingleLine(eval(start))
+    let start += 1
+  endwhile
+endfunction
+
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
+com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 
