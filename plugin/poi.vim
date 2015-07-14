@@ -1,5 +1,4 @@
 " Highlight points of interest
-let s:match_base1  = ':match poi1 '
 au! ColorScheme * call <SID>ExecuteHighlight()
 au! BufEnter * call <SID>ExecuteHighlight()
 au! BufWinEnter * call <SID>ExecuteHighlight()
@@ -33,95 +32,71 @@ function! s:ExecuteHighlight()
   execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='g:g_poi_bg1.' guifg='.g:g_poi_fg1
 endfunction
 
-function! s:LineMatch(group)
-  if exists("b:poi_lines".a:group)
-    let s:build_string = s:match_base{a:group}
-    let c = 0
-    for i in b:poi_lines{a:group}
-      let c += 1
-      if c == 1
-        let s:build_string = s:build_string.'/\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      else
-        let s:build_string = s:build_string.'\%'.string(i["line_num"]).'l\&\M'.i["content"]
-      endif
-      if c == len(b:poi_lines{a:group})
-        let s:build_string = s:build_string.'/'
-      else
-        let s:build_string = s:build_string.'\|'
-      endif
-    endfor
-
-    if c == 0
-      let s:build_string = s:build_string.'//'
-    endif
-    execute s:build_string
-  endif
-endfunction
-
-
 " Poi Line
-
-function! s:AddLine(...)
-  if a:1 == 0
-    let s:line_num = line('.')
-  else
-    let s:line_num = a:1
-  endif
+function! s:AddToList(match_id, line_num, content)
   let dup_found = 0
   let dup_index = -1
-  " will prove usefull when implementing with multiple lists
-  let dup_list = 0
-
-  " check for dups across all lists
   let c = 0
+  let match_removal = -1
+
   for i in b:poi_lines1
-    if s:line_num == i["line_num"]
+    if i["line_num"] == a:line_num
       let dup_found = 1
       let dup_index = c
-      let dup_list = 1
+      let match_removal = i["match_id"]
     endif
     let c += 1
   endfor
 
-  " check if we have found a duplicate across all lists
   if dup_found == 1
     if dup_index != -1
-      " remove from the appropriate list
       call remove(b:poi_lines1, dup_index)
+      call matchdelete(match_removal)
+      return -1
     endif
   else
-    " just go ahead and add the the first list
-    let line_content = escape(getline(s:line_num), '\/[]')
-    let safe_string = substitute(line_content, '^\ *', '\1', '')
-    call add(b:poi_lines1, {"line_num":s:line_num, "content":safe_string})
+    call add(b:poi_lines1, {"line_num": a:line_num, "content": a:content, "match_id": a:match_id})
+    return 1
   endif
-  call s:LineMatch(1)
 endfunction
 
-" Adds the line(s) selection to the global pois var (checks for dups)
-function! s:AddToList(line, bufnum, content)
+" Returns -1000 if no match is found
+" will return the match_id to be used by matchdelete
+function! s:CheckList(line_num, content)
   let dup_found = 0
-  let pois_copy = []
+  let match_id = 0
 
-  " check if the element already exists
-  for l in g:pois
-    if l['line'] == a:line && l['bufnum'] == a:bufnum
+  for i in b:poi_lines1
+    if i["line_num"] == a:line_num
       let dup_found = 1
-    else
-      call add(pois_copy, l)
+      let match_id = i["match_id"]
     endif
   endfor
 
-  if dup_found == 0
-    call add(pois_copy, { 'line': a:line, 'bufnum': a:bufnum, 'content': a:content })
+  if dup_found == 1
+    return match_id
+  else
+    return -1000
   endif
-  " all that bs for this..
-  let g:pois = pois_copy
+endfunction
+
+function! s:AddMatch(line, content)
+  let value = eval(s:CheckList(a:line, a:content))
+  if value != -1000
+    call s:AddToList(value, a:line, a:content)
+  else
+    let content = substitute(a:content, '\', '\\%d92', "g")
+    let content = substitute(content, '[', '\\%d91', "g")
+    let content = substitute(content, ']', '\\%d93', "g")
+    let content = substitute(content, '*', '\\%d42', "")
+    let content = substitute(content, ')', '\\%d41', "")
+    let temp = eval(matchadd("poi1", '\%'.a:line.'l'.content))
+    call s:AddToList(temp, a:line, a:content)
+  endif
 endfunction
 
 function! s:AddSingleLine(num)
-  call s:AddToList(a:num, bufnr(''), getline(a:num))
-  call s:AddLine(a:num)
+  call s:AddMatch(a:num, getline(a:num))
 endfunction
 
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
