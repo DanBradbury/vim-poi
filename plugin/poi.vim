@@ -8,7 +8,7 @@ au! BufWinEnter * call <SID>ExecuteHighlight()
 " xterm 256 color chart: http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 " helpful contrast comparison tool: http://leaverou.github.io/contrast-ratio
 " red / white
-let g:poi_color_count = 3
+let g:poi_color_count = 4
 let g:poi_bg1 = 88
 let g:poi_fg1 = 15
 let g:g_poi_bg1 = "#870000"
@@ -23,6 +23,11 @@ let g:poi_bg3 = 208
 let g:poi_fg3 = 17
 let g:g_poi_bg3 = "#ff8700"
 let g:g_poi_fg3 = "#00005f"
+" blue / pink
+let g:poi_bg4 = 33
+let g:poi_fg4 = 200
+let g:g_poi_bg4 = "#0087ff"
+let g:g_poi_fg4 = "#ff00d7"
 
 " will be necessary when implementing the preview functionality (for now its not used)
 let g:pois = []
@@ -34,6 +39,7 @@ function! s:ExecuteHighlight()
   execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='g:g_poi_bg1.' guifg='.g:g_poi_fg1
   execute 'highlight poi2 ctermbg='.g:poi_bg2.' ctermfg='.g:poi_fg2.' guibg='g:g_poi_bg2.' guifg='.g:g_poi_fg2
   execute 'highlight poi3 ctermbg='.g:poi_bg3.' ctermfg='.g:poi_fg3.' guibg='g:g_poi_bg3.' guifg='.g:g_poi_fg3
+  execute 'highlight poi4 ctermbg='.g:poi_bg4.' ctermfg='.g:poi_fg4.' guibg='g:g_poi_bg4.' guifg='.g:g_poi_fg4
 endfunction
 
 function! s:MakeBuff()
