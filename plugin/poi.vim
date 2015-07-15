@@ -112,6 +112,14 @@ function! s:AddRange(start, end)
   endwhile
 endfunction
 
+" Poi Clear
+function! s:ClearPoi()
+  for i in b:poi_lines1
+    call matchdelete(i["match_id"])
+  endfor
+endfunction
+
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
+com! -nargs=0 PoiClear :call <SID>ClearPoi()
 
