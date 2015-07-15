@@ -130,6 +130,7 @@ function! s:ClearPoi()
   for i in b:poi_lines1
     call matchdelete(i["match_id"])
   endfor
+  let b:poi_lines1 = []
 endfunction
 
 " PoiChange
