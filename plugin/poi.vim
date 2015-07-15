@@ -132,7 +132,7 @@ function! s:ClearPoi()
   endfor
 endfunction
 
-"PoiChange
+" PoiChange
 function! s:ChangeHighlightType(num)
   let content = getline(a:num)
   let add = 0
@@ -162,8 +162,20 @@ function! s:ChangeHighlightType(num)
   endfor
 endfunction
 
+" PoiRangeChange
+function! s:ChangeRange(start, end)
+  let start = a:start
+  let end = a:end
+
+  while start <= end
+    call s:ChangeHighlightType(eval(start))
+    let start += 1
+  endwhile
+endfunction
+
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
 com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
+com! -nargs=0 -range PoiRangeChange :call <SID>ChangeRange(<line1>,<line2>)
 
