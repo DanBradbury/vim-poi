@@ -8,10 +8,21 @@ au! BufWinEnter * call <SID>ExecuteHighlight()
 " xterm 256 color chart: http://www.calmar.ws/vim/256-xterm-24bit-rgb-color-chart.html
 " helpful contrast comparison tool: http://leaverou.github.io/contrast-ratio
 " red / white
+let g:poi_color_count = 3
 let g:poi_bg1 = 88
 let g:poi_fg1 = 15
 let g:g_poi_bg1 = "#870000"
 let g:g_poi_fg1 = "#ffffff"
+" yellow / purple
+let g:poi_bg2 = 226
+let g:poi_fg2 = 93
+let g:g_poi_bg2 = "#ffff00"
+let g:g_poi_fg2 = "#8700ff"
+" orange / lightblue
+let g:poi_bg3 = 208
+let g:poi_fg3 = 17
+let g:g_poi_bg3 = "#ff8700"
+let g:g_poi_fg3 = "#00005f"
 
 " will be necessary when implementing the preview functionality (for now its not used)
 let g:pois = []
@@ -19,13 +30,15 @@ let g:pois = []
 au! BufEnter * call <SID>MakeBuff()
 
 function! s:ExecuteHighlight()
+  "Deperately looking for any way to DRY this up..(figured it would be just like MakeBuff)
   execute 'highlight poi1 ctermbg='.g:poi_bg1.' ctermfg='.g:poi_fg1.' guibg='g:g_poi_bg1.' guifg='.g:g_poi_fg1
+  execute 'highlight poi2 ctermbg='.g:poi_bg2.' ctermfg='.g:poi_fg2.' guibg='g:g_poi_bg2.' guifg='.g:g_poi_fg2
+  execute 'highlight poi3 ctermbg='.g:poi_bg3.' ctermfg='.g:poi_fg3.' guibg='g:g_poi_bg3.' guifg='.g:g_poi_fg3
 endfunction
 
 function! s:MakeBuff()
   let start = 1
-  let end = 3
-  while start <= end
+  while start <= g:poi_color_count
     if !exists('b:poi_lines'.start)
       let b:poi_lines{start} = []
     endif
@@ -56,7 +69,7 @@ function! s:AddToList(match_id, line_num, content)
       return -1
     endif
   else
-    call add(b:poi_lines1, {"line_num": a:line_num, "content": a:content, "match_id": a:match_id})
+    call add(b:poi_lines1, {"line_num": a:line_num, "content": a:content, "match_id": a:match_id, "group": 1})
     return 1
   endif
 endfunction
@@ -119,7 +132,38 @@ function! s:ClearPoi()
   endfor
 endfunction
 
+"PoiChange
+function! s:ChangeHighlightType(num)
+  let content = getline(a:num)
+  let add = 0
+  let c = 0
+
+  for i in b:poi_lines1
+    if a:num == i["line_num"]
+      call matchdelete(i["match_id"])
+      "should be refactored into a cleanup method
+      let content = substitute(i["content"], '\', '\\%d92', "g")
+      let content = substitute(content, '[', '\\%d91', "g")
+      let content = substitute(content, ']', '\\%d93', "g")
+      let content = substitute(content, '*', '\\%d42', "")
+      let content = substitute(content, ')', '\\%d41', "")
+
+      if i["group"] == g:poi_color_count
+        let i["group"] = 1
+      else
+        let i["group"] += 1
+      endif
+
+      let new_match_id = eval(matchadd("poi".i["group"], '\%'.a:num.'l'.content))
+      let i["match_id"] = new_match_id
+      let add = 1
+    endif
+    let c += 1
+  endfor
+endfunction
+
 com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
 com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
+com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
 
