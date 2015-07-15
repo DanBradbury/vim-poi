@@ -53,7 +53,7 @@ function! s:MakeBuff()
 endfunction
 
 " general helper methods
-function! s:AddToList(match_id, line_num, content)
+function! s:AddToList(match_id, line_num, content, poi_group)
   let dup_found = 0
   let dup_index = -1
   let c = 0
@@ -75,7 +75,7 @@ function! s:AddToList(match_id, line_num, content)
       return -1
     endif
   else
-    call add(b:poi_lines1, {"line_num": a:line_num, "content": a:content, "match_id": a:match_id, "group": 1})
+    call add(b:poi_lines1, {"line_num": a:line_num, "content": a:content, "match_id": a:match_id, "group": a:poi_group})
     return 1
   endif
 endfunction
@@ -100,33 +100,35 @@ function! s:CheckList(line_num, content)
 endfunction
 
 " Poi Line
-function! s:AddMatch(line, content)
+function! s:AddMatch(line, content, poi_group)
   let value = eval(s:CheckList(a:line, a:content))
   if value != -1000
-    call s:AddToList(value, a:line, a:content)
+    call s:AddToList(value, a:line, a:content, a:poi_group)
   else
     let content = substitute(a:content, '\', '\\%d92', "g")
     let content = substitute(content, '[', '\\%d91', "g")
     let content = substitute(content, ']', '\\%d93', "g")
     let content = substitute(content, '*', '\\%d42', "")
     let content = substitute(content, ')', '\\%d41', "")
-    let temp = eval(matchadd("poi1", '\%'.a:line.'l'.content))
-    call s:AddToList(temp, a:line, a:content)
+    let temp = eval(matchadd("poi".a:poi_group, '\%'.a:line.'l'.content))
+    " ensure that the line is valid for a matchadd
+    if temp != -1
+      call s:AddToList(temp, a:line, a:content, a:poi_group)
+    endif
   endif
 endfunction
 
-function! s:AddSingleLine(num)
-  call s:AddMatch(a:num, getline(a:num))
+function! s:AddSingleLine(num, poi_group)
+  call s:AddMatch(a:num, getline(a:num), a:poi_group)
 endfunction
 
 " Poi Lines
-function! s:AddRange(start, end)
+function! s:AddRange(start, end, poi_group)
   let start = a:start
   let end = a:end
-  "call s:AddToList(start, bufnr(''), getline(start))
 
   while start <= end
-    call s:AddSingleLine(eval(start))
+    call s:AddSingleLine(eval(start), a:poi_group)
     let start += 1
   endwhile
 endfunction
@@ -180,8 +182,14 @@ function! s:ChangeRange(start, end)
   endwhile
 endfunction
 
-com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'))
-com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>)
+com! -nargs=0 PoiLine :call <SID>AddSingleLine(line('.'),1)
+com! -nargs=0 PoiLine2 :call <SID>AddSingleLine(line('.'),2)
+com! -nargs=0 PoiLine3 :call <SID>AddSingleLine(line('.'),3)
+com! -nargs=0 PoiLine4 :call <SID>AddSingleLine(line('.'),4)
+com! -nargs=0 -range PoiLines :call <SID>AddRange(<line1>,<line2>,1)
+com! -nargs=0 -range PoiLines2 :call <SID>AddRange(<line1>,<line2>,2)
+com! -nargs=0 -range PoiLines3 :call <SID>AddRange(<line1>,<line2>,3)
+com! -nargs=0 -range PoiLines4 :call <SID>AddRange(<line1>,<line2>,4)
 com! -nargs=0 PoiClear :call <SID>ClearPoi()
 com! -nargs=0 PoiChange :call <SID>ChangeHighlightType(line('.'))
 com! -nargs=0 -range PoiRangeChange :call <SID>ChangeRange(<line1>,<line2>)
