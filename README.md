@@ -18,13 +18,17 @@ git clone https://github.com/DanBradbury/vim-poi.git
 Add the following to your .vimrc to get started ([wiki article](https://github.com/DanBradbury/vim-poi/wiki/Command-Reference) for more details on each command)
 
 ```vim
-nnoremap <Leader>p  :PoiLine<CR>
-vnoremap <Leader>p  :PoiLines<CR>
-nnoremap <Leader>pd :PoiChange <CR>
-vnoremap <Leader>pd :PoiRangeChange<CR>
+nnoremap <Leader>p :PoiLine<CR>
+nnoremap <Leader>p2 :PoiLine2<CR>
+nnoremap <Leader>p3 :PoiLine3<CR>
+nnoremap <Leader>p4 :PoiLine4<CR>
+vnoremap <Leader>p :PoiLines<CR>
+vnoremap <Leader>p2 :PoiLines2<CR>
+vnoremap <Leader>p3 :PoiLines3<CR>
+vnoremap <Leader>p4 :PoiLines4<CR>
 nnoremap <Leader>pc :PoiClear<CR>
-nnoremap <Leader>pp :PoiPreview<CR>
-nnoremap <Leader>ph :PoiHelp<CR>
+nnoremap <Leader>pd :PoiChange<CR>
+vnoremap <Leader>pd :PoiRangeChange<CR>
 ```
 
 ## License
